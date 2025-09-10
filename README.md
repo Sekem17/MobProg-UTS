@@ -14,3 +14,11 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+## MobProg-UTS
+
+Project UTS Mobile Programming. Kelompok 7
+- Jose Alexander 535240040
+- Aria santosa Gunawan 535240047
+- Samuel Kenjiro Mudjoputro 535240044
+- Tegar Ning Izzaty 535240170
+- Andhika Haryansah 535240158
