@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import 'post_screen.dart';
 import 'dm_screen.dart';
 import 'explore_screen.dart';
 import 'notif_screen.dart';
@@ -17,7 +16,6 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = const [
     HomePage(),
-    PostPage(),
     DmPage(),
     SearchPage(),
     NotificationPage(),
@@ -37,15 +35,16 @@ class _MainScreenState extends State<MainScreen> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Colors.deepPurple,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Post"),
-          BottomNavigationBarItem(icon: Icon(Icons.message), label: "DM"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Explore"),
           BottomNavigationBarItem(
-              icon: Icon(Icons.notifications), label: "Notif"),
+            icon: Icon(Icons.notifications),
+            label: "Notif",
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
         ],
       ),
     );
