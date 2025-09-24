@@ -1,31 +1,13 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SearchPage extends StatefulWidget {
+  const SearchPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Search Akun',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const SearchAccountPage(),
-    );
-  }
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-class SearchAccountPage extends StatefulWidget {
-  const SearchAccountPage({super.key});
-
-  @override
-  State<SearchAccountPage> createState() => _SearchAccountPageState();
-}
-
-class _SearchAccountPageState extends State<SearchAccountPage> {
+class _SearchPageState extends State<SearchPage> {
   // Dummy data akun
   final List<Map<String, String>> accounts = [
     {"name": "Jose Alexander", "username": "@josealex", "avatar": "👨"},
