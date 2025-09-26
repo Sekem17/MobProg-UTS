@@ -9,32 +9,46 @@ class DmPage extends StatelessWidget {
     // Data dummy untuk daftar percakapan DM
     final List<Map<String, String>> dms = [
       {
-        "username": "@skm",
-        "name": "Sekem",
+        "username": "@joko",
+        "name": "Joko",
         "last_message": "Ada di mana, bro?",
         "time": "15m",
         "avatar": "assets/gambar/avatarpp.jpg",
       },
       {
-        "username": "@mahmud",
-        "name": "Mahmud",
+        "username": "@bowo",
+        "name": "Bowo",
         "last_message": "Tugasnya udah dikerjain?",
         "time": "1j",
         "avatar": "assets/gambar/ppbebek.jpg",
       },
       {
-        "username": "@hammy",
-        "name": "xiao ham",
+        "username": "@bahlil",
+        "name": "Bahlil",
         "last_message": "Jangan lupa rapat besok ya.",
         "time": "4j",
         "avatar": "assets/gambar/hampp.jpg",
       },
       {
-        "username": "@joko",
-        "name": "Joko",
+        "username": "@ahmadsahroni",
+        "name": "Sahroni",
         "last_message": "Oke, siap!",
         "time": "1h",
         "avatar": "assets/gambar/avatarpp.jpg",
+      },
+      {
+        "username": "@mega",
+        "name": "Megawatt",
+        "last_message": "Makasih infonya bro.",
+        "time": "3h",
+        "avatar": "assets/gambar/ppbebek.jpg",
+      },
+      {
+        "username": "@andi",
+        "name": "Andi",
+        "last_message": "Sip, nanti aku kabarin lagi.",
+        "time": "5h",
+        "avatar": "assets/gambar/hampp.jpg",
       },
     ];
 

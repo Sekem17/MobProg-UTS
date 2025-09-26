@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-import 'pages/main_screen.dart'; 
+import 'pages/main_screen.dart';
 import 'pages/login_page.dart ';
-import 'pages/register_page.dart';
-import 'pages/home_screen.dart';
-import 'pages/post_screen.dart';
-import 'pages/dm_screen.dart';
-import 'pages/explore_screen.dart';
-import 'pages/notif_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,10 +15,11 @@ class MyApp extends StatelessWidget {
       title: 'Xwritter - UTS Mobile Programming',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
         useMaterial3: true,
       ),
-      home: const MainScreen(),
+      home: const LoginPage(),
+      routes: {'/main': (context) => const MainScreen()},
     );
   }
 }

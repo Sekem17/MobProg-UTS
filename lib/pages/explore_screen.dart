@@ -31,10 +31,7 @@ class _SearchPageState extends State<SearchPage> {
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Search Akun"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Explore"), centerTitle: true),
       body: Column(
         children: [
           // Search bar
