@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Xwritter - Timeline'),
+        title: const Text('YAPP'),
         centerTitle: true,
         actions: [
           // Tombol hapus data

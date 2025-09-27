@@ -9,40 +9,51 @@ class DmPage extends StatelessWidget {
     // Data dummy untuk daftar percakapan DM
     final List<Map<String, String>> dms = [
       {
-        "username": "@skm",
-        "name": "Sekem",
-        "last_message": "Ada di mana, bro?",
-        "time": "15m",
-        "avatar": "assets/gambar/avatarpp.jpg"
-      },
-      {
-        "username": "@mahmud",
-        "name": "Mahmud",
-        "last_message": "Tugasnya udah dikerjain?",
-        "time": "1j",
-        "avatar": "assets/gambar/ppbebek.jpg"
-      },
-      {
-        "username": "@hammy",
-        "name": "xiao ham",
-        "last_message": "Jangan lupa rapat besok ya.",
-        "time": "4j",
-        "avatar": "assets/gambar/hampp.jpg"
-      },
-      {
         "username": "@joko",
         "name": "Joko",
+        "last_message": "Ada di mana, bro?",
+        "time": "15m",
+        "avatar": "assets/gambar/avatarpp.jpg",
+      },
+      {
+        "username": "@bowo",
+        "name": "Bowo",
+        "last_message": "Tugasnya udah dikerjain?",
+        "time": "1j",
+        "avatar": "assets/gambar/ppbebek.jpg",
+      },
+      {
+        "username": "@bahlil",
+        "name": "Bahlil",
+        "last_message": "Jangan lupa rapat besok ya.",
+        "time": "4j",
+        "avatar": "assets/gambar/hampp.jpg",
+      },
+      {
+        "username": "@ahmadsahroni",
+        "name": "Sahroni",
         "last_message": "Oke, siap!",
         "time": "1h",
-        "avatar": "assets/gambar/avatarpp.jpg"
+        "avatar": "assets/gambar/avatarpp.jpg",
+      },
+      {
+        "username": "@mega",
+        "name": "Megawatt",
+        "last_message": "Makasih infonya bro.",
+        "time": "3h",
+        "avatar": "assets/gambar/ppbebek.jpg",
+      },
+      {
+        "username": "@andi",
+        "name": "Andi",
+        "last_message": "Sip, nanti aku kabarin lagi.",
+        "time": "5h",
+        "avatar": "assets/gambar/hampp.jpg",
       },
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Direct Messages'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Direct Messages'), centerTitle: true),
       body: ListView.builder(
         itemCount: dms.length,
         itemBuilder: (context, index) {
@@ -50,9 +61,7 @@ class DmPage extends StatelessWidget {
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage: AssetImage(dm["avatar"]!),
-              ),
+              leading: CircleAvatar(backgroundImage: AssetImage(dm["avatar"]!)),
               title: Row(
                 children: [
                   Text(
@@ -81,7 +90,9 @@ class DmPage extends StatelessWidget {
               ),
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Membuka percakapan dengan ${dm["name"]}")),
+                  SnackBar(
+                    content: Text("Membuka percakapan dengan ${dm["name"]}"),
+                  ),
                 );
               },
             ),
