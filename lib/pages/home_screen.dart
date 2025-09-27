@@ -1,5 +1,3 @@
-// lib/pages/home_screen.dart
-
 import 'package:flutter/material.dart';
 import 'post_screen.dart';
 import 'package:medsos/storage/post_storage.dart';
@@ -68,7 +66,7 @@ class _HomePageState extends State<HomePage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Semua post telah dihapus.")),
               );
-              _loadPosts(); // Muat ulang tampilan setelah menghapus
+              _loadPosts(); 
             },
           ),
         ],

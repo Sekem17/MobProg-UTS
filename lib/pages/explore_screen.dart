@@ -8,21 +8,21 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  // Dummy data akun
+
   final List<Map<String, String>> accounts = [
-    {"name": "Jose Alexander", "username": "@josealex", "avatar": "👨"},
-    {"name": "Flutter Dev", "username": "@flutterdev", "avatar": "💙"},
-    {"name": "Coding Life", "username": "@codelife", "avatar": "💻"},
-    {"name": "Nasi Goreng Lovers", "username": "@nasigoreng", "avatar": "🍚"},
-    {"name": "OpenAI Bot", "username": "@gptbot", "avatar": "🤖"},
-    {"name": "Anime Fans", "username": "@otaku", "avatar": "🎌"},
+    {"name": "John Doe", "username": "@johndoe", "avatar": "JD"},
+    {"name": "Jose Alexander", "username": "@josealex", "avatar": "JA"},
+    {"name": "Flutter Dev", "username": "@flutterdev", "avatar": "FD"},
+    {"name": "Coding Life", "username": "@codelife", "avatar": "CL"},
+    {"name": "Nasi Goreng Lovers", "username": "@nasigoreng", "avatar": "NG"},
+    {"name": "OpenAI Bot", "username": "@gptbot", "avatar": "GB"},
+    {"name": "Anime Fans", "username": "@otaku", "avatar": "OF"},
   ];
 
   String query = "";
 
   @override
   Widget build(BuildContext context) {
-    // Filter akun sesuai nama atau username
     final filteredAccounts = accounts.where((account) {
       final name = account["name"]!.toLowerCase();
       final username = account["username"]!.toLowerCase();
@@ -34,7 +34,6 @@ class _SearchPageState extends State<SearchPage> {
       appBar: AppBar(title: const Text("Explore"), centerTitle: true),
       body: Column(
         children: [
-          // Search bar
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextField(
@@ -53,7 +52,6 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
 
-          // List hasil pencarian akun
           Expanded(
             child: filteredAccounts.isEmpty
                 ? const Center(child: Text("Akun tidak ditemukan"))

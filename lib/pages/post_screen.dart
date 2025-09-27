@@ -1,9 +1,7 @@
-// lib/pages/post_screen.dart
-
 import 'package:flutter/material.dart';
 
 class PostPage extends StatefulWidget {
-  // Tambahkan properti untuk menerima nama dan username
+
   final String name;
   final String username;
 
@@ -42,15 +40,7 @@ class _PostPageState extends State<PostPage> {
             onPressed: () {
               final content = _postController.text.trim();
               if (content.isNotEmpty) {
-                // Buat data post baru dengan nama dan username dinamis
-                final newPost = {
-                  "username": widget.username,
-                  "name": widget.name,
-                  "content": content,
-                  "time": "Sekarang", // Ini akan diubah nanti
-                  "avatar": "assets/gambar/default_avatar.jpg", // Gambar profil default
-                };
-                Navigator.of(context).pop(newPost);
+                Navigator.of(context).pop(content);
               }
             },
             child: const Text(

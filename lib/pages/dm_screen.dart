@@ -1,4 +1,3 @@
-// dm_screen.dart
 import 'package:flutter/material.dart';
 
 class DmPage extends StatelessWidget {
@@ -6,7 +5,6 @@ class DmPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Data dummy untuk daftar percakapan DM
     final List<Map<String, String>> dms = [
       {
         "username": "@joko",

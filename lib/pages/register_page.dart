@@ -1,4 +1,3 @@
-// lib/pages/register_page.dart
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 
@@ -32,12 +31,10 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    // simulasi sukses daftar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Akun "$username" berhasil dibuat!')),
     );
 
-    // kembali ke halaman login
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -62,7 +59,6 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 32),
 
-              // Username
               TextField(
                 controller: _usernameCtrl,
                 decoration: const InputDecoration(
@@ -72,7 +68,6 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 16),
 
-              // Password
               TextField(
                 controller: _passwordCtrl,
                 obscureText: true,
@@ -83,7 +78,6 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 16),
 
-              // Konfirmasi Password
               TextField(
                 controller: _confirmCtrl,
                 obscureText: true,
@@ -94,7 +88,6 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 24),
 
-              // Tombol Register
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -105,7 +98,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
               const SizedBox(height: 12),
 
-              // Link ke Login
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

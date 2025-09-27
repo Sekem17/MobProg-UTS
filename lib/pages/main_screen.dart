@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import 'dm_screen.dart';
 import 'explore_screen.dart';
 import 'notif_screen.dart';
+import 'profile_screen.dart'; 
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -15,10 +15,10 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = const [
-    HomePage(),
-    DmPage(),
-    SearchPage(),
-    NotificationPage(),
+    HomePage(),          
+    SearchPage(),        
+    NotificationPage(),  
+    ProfilPage(),        
   ];
 
   void _onItemTapped(int index) {

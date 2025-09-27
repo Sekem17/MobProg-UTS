@@ -5,7 +5,7 @@ class NotificationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // contoh data notifikasi
+    
     final List<Map<String, String>> notifications = [
       {"user": "Andi", "message": "Menyukai tweet kamu", "time": "2m"},
       {"user": "Budi", "message": "Mengomentari postingan kamu", "time": "10m"},

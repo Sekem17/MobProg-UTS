@@ -1,12 +1,9 @@
-// lib/storage/post_storage.dart
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 class PostStorage {
-  // Ubah _getFilePath menjadi public (hapus _)
   static Future<String> getFilePath() async {
     final directory = await getApplicationDocumentsDirectory();
     final path = join(directory.path, 'posts.json');
