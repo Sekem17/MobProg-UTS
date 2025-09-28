@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'register_page.dart';
 import 'main_screen.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,21 +14,61 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameCtrl = TextEditingController();
   final TextEditingController _passwordCtrl = TextEditingController();
 
-  void _login() {
+  @override
+  void initState() {
+    super.initState();
+    _loadLastUsername();
+  }
+
+  void _loadLastUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastUser = prefs.getString('last_registered_user');
+    if (lastUser != null) {
+      _usernameCtrl.text = lastUser;
+    }
+  }
+
+  void _login() async {
     final username = _usernameCtrl.text.trim();
     final password = _passwordCtrl.text.trim();
 
-    if (username.isNotEmpty && password.isNotEmpty) {
-      // simulasi login sukses
+    if (username.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Isi username & password ~~')),
+      );
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final storedPassword = prefs.getString('user_$username');
+
+    if (storedPassword == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Username belum terdaftar :v')),
+      );
+    } else if (storedPassword == password) {
+      await prefs.setString('current_user', username);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Welcome brother, $username!')));
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const MainScreen()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Isi username & password!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Hayo password salah!')));
     }
+  }
+
+  @override
+  void dispose() {
+    _usernameCtrl.dispose();
+    _passwordCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -48,7 +88,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 32),
 
-              // Username
               TextField(
                 controller: _usernameCtrl,
                 decoration: const InputDecoration(
@@ -58,7 +97,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 16),
 
-              // Password
               TextField(
                 controller: _passwordCtrl,
                 obscureText: true,
@@ -69,7 +107,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 24),
 
-              // Tombol login
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -80,7 +117,6 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 12),
 
-              // Link ke Register
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -93,9 +129,9 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     },
                     child: const Text('Daftar'),
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'post_screen.dart';
 import 'package:medsos/storage/post_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,16 +14,34 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _posts = [];
 
-  final _currentUser = {
-    "name": "Nama Anda",
-    "username": "@anda",
+  Map<String, String> _currentUser = {
+    "name": "Pengguna",
+    "username": "@guest",
     "avatar": "assets/gambar/avatarpp.jpg",
   };
 
   @override
   void initState() {
     super.initState();
+    _loadCurrentUser();
     _loadPosts();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentUsername = prefs.getString('current_user');
+
+    if (currentUsername != null) {
+      final name = prefs.getString('name_$currentUsername') ?? 'Nama Anda';
+
+      setState(() {
+        _currentUser = {
+          "name": name,
+          "username": "@$currentUsername",
+          "avatar": "assets/gambar/avatarpp.jpg",
+        };
+      });
+    }
   }
 
   Future<void> _loadPosts() async {
@@ -30,6 +49,17 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _posts = loadedPosts;
     });
+  }
+
+  Future<void> _deletePost(int index) async {
+    setState(() {
+      _posts.removeAt(index);
+    });
+
+    await PostStorage.savePosts(_posts);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Post telah dihapus.")));
   }
 
   String _formatTime(String? timestamp) {
@@ -58,15 +88,18 @@ class _HomePageState extends State<HomePage> {
         title: const Text('YAPP'),
         centerTitle: true,
         actions: [
-          // Tombol hapus data
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () async {
               await PostStorage.deletePosts();
+
+              setState(() {
+                _posts = [];
+              });
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Semua post telah dihapus.")),
               );
-              _loadPosts(); 
             },
           ),
         ],
@@ -75,11 +108,16 @@ class _HomePageState extends State<HomePage> {
         itemCount: _posts.length,
         itemBuilder: (context, index) {
           final post = _posts[index];
+          final isCurrentUserPost =
+              post["username"] == _currentUser["username"];
+
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             child: ListTile(
               leading: CircleAvatar(
-                backgroundImage: AssetImage(post["avatar"]!),
+                backgroundImage: post["avatar"] is String
+                    ? AssetImage(post["avatar"]!)
+                    : null,
               ),
               title: Row(
                 children: [
@@ -103,13 +141,42 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(top: 5),
                 child: Text(post["content"] is String ? post["content"]! : ''),
               ),
-              trailing: const Icon(Icons.more_vert),
+
+              trailing: isCurrentUserPost
+                  ? PopupMenuButton<String>(
+                      onSelected: (String result) {
+                        if (result == 'delete') {
+                          _deletePost(index);
+                        }
+                      },
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                            const PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Text(
+                                'Hapus Post',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                      icon: const Icon(Icons.more_vert),
+                    )
+                  : null,
             ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          if (_currentUser["username"] == "@guest") {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Data pengguna belum dimuat, coba lagi."),
+              ),
+            );
+            return;
+          }
+
           final newPostContent = await Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => PostPage(

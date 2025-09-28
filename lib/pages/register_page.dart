@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -10,26 +11,43 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _usernameCtrl = TextEditingController();
+  final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _passwordCtrl = TextEditingController();
   final TextEditingController _confirmCtrl = TextEditingController();
 
-  void _register() {
+  void _register() async {
     final username = _usernameCtrl.text.trim();
+    final name = _nameCtrl.text.trim();
     final password = _passwordCtrl.text.trim();
     final confirm = _confirmCtrl.text.trim();
 
-    if (username.isEmpty || password.isEmpty || confirm.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Semua field wajib diisi!')),
-      );
+    if (username.isEmpty ||
+        password.isEmpty ||
+        confirm.isEmpty ||
+        name.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Semua field wajib diisi!')));
       return;
     }
     if (password != confirm) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Password tidak sama!')));
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+
+    if (prefs.containsKey('user_$username')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password tidak sama!')),
+        SnackBar(content: Text('Username "$username" sudah digunakan!')),
       );
       return;
     }
+
+    await prefs.setString('user_$username', password);
+    await prefs.setString('name_$username', name);
+    await prefs.setString('last_registered_user', username);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Akun "$username" berhasil dibuat!')),
@@ -39,6 +57,15 @@ class _RegisterPageState extends State<RegisterPage> {
       context,
       MaterialPageRoute(builder: (_) => const LoginPage()),
     );
+  }
+
+  @override
+  void dispose() {
+    _usernameCtrl.dispose();
+    _nameCtrl.dispose();
+    _passwordCtrl.dispose();
+    _confirmCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -58,6 +85,15 @@ class _RegisterPageState extends State<RegisterPage> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 32),
+
+              TextField(
+                controller: _nameCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Nama Lengkap',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
 
               TextField(
                 controller: _usernameCtrl,
@@ -110,9 +146,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       );
                     },
                     child: const Text('Login'),
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),
