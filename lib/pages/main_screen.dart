@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Wajib diimport
 import 'home_screen.dart';
 import 'explore_screen.dart';
 import 'notif_screen.dart';
-import 'profile_screen.dart'; 
+import 'dm_screen.dart'; 
+import 'package:medsos/pages/profile_screen.dart'; 
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,13 +15,35 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  List<Widget> _pages = [const CircularProgressIndicator()]; // Default loading state
+  String _currentUsername = '@guest'; // Default username
 
-  final List<Widget> _pages = const [
-    HomePage(),          
-    SearchPage(),        
-    NotificationPage(),  
-    ProfilPage(),        
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _initializePages();
+  }
+  
+  // FUNGSI BARU: Memuat user dan menyusun list halaman
+  Future<void> _initializePages() async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentUsername = prefs.getString('current_user');
+    
+    // Simpan username untuk digunakan di ProfilPage
+    _currentUsername = '@${currentUsername ?? 'guest'}';
+    
+    // Susun list halaman setelah username dimuat
+    setState(() {
+      _pages = [
+        const HomePage(),          
+        const SearchPage(),        
+        const NotificationPage(),  
+        const DmPage(),
+        // Memberikan username saat ini ke ProfilPage
+        ProfilePage(targetUsername: _currentUsername), 
+      ];
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -29,8 +53,15 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Tampilkan CircularProgressIndicator jika _pages belum selesai dimuat
+    if (_pages.length == 1 && _selectedIndex == 0 && _pages[0] is CircularProgressIndicator) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: _pages[_selectedIndex], 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -44,7 +75,8 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(Icons.notifications),
             label: "Notifications",
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
+          BottomNavigationBarItem(icon: Icon(Icons.mail), label: "Messages"), 
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"), 
         ],
       ),
     );

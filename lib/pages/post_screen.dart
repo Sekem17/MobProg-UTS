@@ -16,10 +16,13 @@ class PostPage extends StatefulWidget {
 }
 
 class _PostPageState extends State<PostPage> {
+  // Controller BARU untuk Judul
+  final TextEditingController _titleController = TextEditingController(); 
   final TextEditingController _postController = TextEditingController();
 
   @override
   void dispose() {
+    _titleController.dispose(); // Dispose controller baru
     _postController.dispose();
     super.dispose();
   }
@@ -38,9 +41,12 @@ class _PostPageState extends State<PostPage> {
         actions: [
           TextButton(
             onPressed: () {
+              final title = _titleController.text.trim();
               final content = _postController.text.trim();
+              
               if (content.isNotEmpty) {
-                Navigator.of(context).pop(content);
+                // KEMBALIKAN MAP berisi Judul dan Isi
+                Navigator.of(context).pop({"title": title, "content": content});
               }
             },
             child: const Text(
@@ -52,14 +58,35 @@ class _PostPageState extends State<PostPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: TextField(
-          controller: _postController,
-          autofocus: true,
-          maxLines: null,
-          decoration: const InputDecoration(
-            hintText: "Apa yang sedang Anda pikirkan?",
-            border: InputBorder.none,
-          ),
+        child: Column( // Gunakan Column untuk menampung kedua input
+          children: [
+            // INPUT JUDUL BARU
+            TextFormField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                hintText: "Judul",
+                border: InputBorder.none,
+                // Tambahkan garis bawah untuk pemisah visual
+                contentPadding: EdgeInsets.symmetric(vertical: 10), 
+              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              maxLines: 1,
+            ),
+            const Divider(height: 1), // Garis pemisah
+            
+            // INPUT ISI POST LAMA
+            Expanded(
+              child: TextField(
+                controller: _postController,
+                autofocus: true,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  hintText: "Silahkan tuliskan yang ingin anda tulis :)",
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
