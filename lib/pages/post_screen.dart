@@ -1,27 +1,22 @@
-// lib/pages/post_screen.dart
-
 import 'package:flutter/material.dart';
 
 class PostPage extends StatefulWidget {
-  // Tambahkan properti untuk menerima nama dan username
   final String name;
   final String username;
 
-  const PostPage({
-    required this.name,
-    required this.username,
-    super.key
-  });
+  const PostPage({required this.name, required this.username, super.key});
 
   @override
   State<PostPage> createState() => _PostPageState();
 }
 
 class _PostPageState extends State<PostPage> {
+  final TextEditingController _titleController = TextEditingController();
   final TextEditingController _postController = TextEditingController();
 
   @override
   void dispose() {
+    _titleController.dispose();
     _postController.dispose();
     super.dispose();
   }
@@ -40,36 +35,51 @@ class _PostPageState extends State<PostPage> {
         actions: [
           TextButton(
             onPressed: () {
+              final title = _titleController.text.trim();
               final content = _postController.text.trim();
+
               if (content.isNotEmpty) {
-                // Buat data post baru dengan nama dan username dinamis
-                final newPost = {
-                  "username": widget.username,
-                  "name": widget.name,
-                  "content": content,
-                  "time": "Sekarang", // Ini akan diubah nanti
-                  "avatar": "assets/gambar/default_avatar.jpg", // Gambar profil default
-                };
-                Navigator.of(context).pop(newPost);
+                Navigator.of(context).pop({"title": title, "content": content});
               }
             },
             child: const Text(
               'Post',
-              style: TextStyle(fontSize: 18, color: Colors.deepPurple),
+              style: TextStyle(
+                fontSize: 18,
+                color: Color.fromARGB(255, 5, 133, 238),
+              ),
             ),
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: TextField(
-          controller: _postController,
-          autofocus: true,
-          maxLines: null,
-          decoration: const InputDecoration(
-            hintText: "Apa yang sedang Anda pikirkan?",
-            border: InputBorder.none,
-          ),
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                hintText: "Judul",
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(vertical: 10),
+              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              maxLines: 1,
+            ),
+            const Divider(height: 1),
+
+            Expanded(
+              child: TextField(
+                controller: _postController,
+                autofocus: true,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  hintText: "Silahkan tuliskan yang ingin anda tulis :)",
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
