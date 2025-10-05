@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; 
-import 'package:medsos/storage/chat_storage.dart'; 
-import 'package:medsos/fitur/fitur_chat.dart'; 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:medsos/storage/chat_storage.dart';
+import 'package:medsos/fitur/fitur_chat.dart';
+import 'package:medsos/widget/avatar_widget.dart';
 
 class DmPage extends StatefulWidget {
   const DmPage({super.key});
@@ -11,23 +12,24 @@ class DmPage extends StatefulWidget {
 }
 
 class _DmPageState extends State<DmPage> {
-  String _currentUsername = ""; // Username tanpa '@'
-  List<Map<String, String>> _dmEntries = []; 
+  String _currentUsername = "";
+  List<Map<String, String>> _dmEntries = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Setelah debug, hanya panggil fungsi pemuatan data
-    _loadDmData(); 
+    _loadDmData();
   }
 
   Future<void> _loadDmData() async {
     final prefs = await SharedPreferences.getInstance();
-    final currentUsername = prefs.getString('current_user');
-    
+    final currentUsername = prefs.getString('current_user'); 
+
     if (currentUsername == null) {
-      setState(() { _isLoading = false; });
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
 
@@ -35,28 +37,31 @@ class _DmPageState extends State<DmPage> {
 
     final allKeys = prefs.getKeys();
     List<Map<String, String>> potentialDmUsers = [];
-    
-    final userKeys = allKeys.where((key) => key.startsWith('user_') && key != 'current_user').toList();
+
+    final userKeys = allKeys
+        .where((key) => key.startsWith('user_') && key != 'current_user')
+        .toList();
 
     for (var key in userKeys) {
-      final username = key.substring(5); 
-      final name = prefs.getString('name_$username'); 
-      
+      final username = key.substring(5);
+      final name = prefs.getString('name_$username');
+
       if (name != null) {
-        // PERHATIAN: Pastikan file ChatStorage sudah memiliki 'clearAllChats()'
-        final messages = await ChatStorage.loadMessages(currentUsername, username);
-        
+        final messages = await ChatStorage.loadMessages(
+          currentUsername,
+          username,
+        );
+
         String lastMessage = "Mulai percakapan...";
         String time = "";
 
         if (messages.isNotEmpty) {
           final lastMsg = messages.last;
           lastMessage = lastMsg["content"] ?? "Pesan terhapus";
-          
-          // Logika sinkronisasi: Tandai "Baru" jika pengirim BUKAN user saat ini
+
           final isLastMsgFromOther = lastMsg["sender"] != currentUsername;
-          
-          time = isLastMsgFromOther ? "Baru" : ""; 
+
+          time = isLastMsgFromOther ? "Baru" : "";
         }
 
         potentialDmUsers.add({
@@ -64,11 +69,10 @@ class _DmPageState extends State<DmPage> {
           "name": name,
           "last_message": lastMessage,
           "time": time.isNotEmpty ? time : "",
-          "avatar_char": name.substring(0, 1).toUpperCase(), 
         });
       }
     }
-    
+
     potentialDmUsers.sort((a, b) => a["name"]!.compareTo(b["name"]!));
 
     setState(() {
@@ -78,40 +82,41 @@ class _DmPageState extends State<DmPage> {
   }
 
   void _openChatRoom(BuildContext context, Map<String, String> dm) async {
-    final otherUsername = dm["username"]!.substring(1); 
-    
+    final otherUsername = dm["username"]!.substring(1);
+
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => ChatRoomPage(
-          currentUser: _currentUsername, 
-          otherUser: otherUsername,     
+          currentUser: _currentUsername,
+          otherUser: otherUsername,
           name: dm["name"]!,
           username: dm["username"]!,
         ),
       ),
     );
-    
-    setState(() { _isLoading = true; });
+
+    setState(() {
+      _isLoading = true;
+    });
     _loadDmData();
   }
-
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: Text('Direct Messages'), centerTitle: true),
-        body: Center(child: CircularProgressIndicator()),
+        appBar: AppBar(title: const Text('Direct Messages'), centerTitle: true),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
-    
+
     if (_dmEntries.isEmpty) {
-        return Scaffold(
-        appBar: AppBar(title: Text('Direct Messages'), centerTitle: true),
-        body: Center(child: Text("Belum ada user terdaftar.")),
+      return Scaffold(
+        appBar: AppBar(title: const Text('Direct Messages'), centerTitle: true),
+        body: const Center(child: Text("Belum ada user terdaftar.")),
       );
     }
-    
+
     return Scaffold(
       appBar: AppBar(title: const Text('Direct Messages'), centerTitle: true),
       body: ListView.builder(
@@ -119,51 +124,53 @@ class _DmPageState extends State<DmPage> {
         itemBuilder: (context, index) {
           final dm = _dmEntries[index];
           final isNewMessage = dm["time"] == "Baru";
-          
+
           final dmUserWithoutAt = dm["username"]!.substring(1);
           final isMe = dmUserWithoutAt == _currentUsername;
 
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: isMe ? Colors.pink.shade100 : Colors.deepPurple.shade100,
-                child: Text(dm["avatar_char"]!, style: TextStyle(color: isMe ? Colors.pink : Colors.deepPurple)),
-              ), 
+              leading: UserAvatar(username: dmUserWithoutAt, radius: 24),
               title: Row(
                 children: [
                   Text(
                     dm["name"]!,
-                    style: TextStyle(fontWeight: isNewMessage ? FontWeight.bold : FontWeight.normal),
+                    style: TextStyle(
+                      fontWeight: isNewMessage
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
                   ),
-                  
+
                   if (isMe)
                     const Padding(
                       padding: EdgeInsets.only(left: 6.0),
                       child: Text(
                         '(me)',
                         style: TextStyle(
-                          color: Colors.grey, 
-                          fontWeight: FontWeight.bold, 
-                          fontSize: 14
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
                         ),
                       ),
                     ),
-                  
+
                   const SizedBox(width: 6),
                   Text(
                     dm["username"]!,
                     style: const TextStyle(color: Colors.grey),
                   ),
                   const Spacer(),
-                  // Tampilkan tanda 'Baru' atau waktu jika ada
                   if (dm["time"]!.isNotEmpty)
                     Text(
                       dm["time"]!,
                       style: TextStyle(
-                        color: isNewMessage ? Colors.deepPurple : Colors.grey, 
-                        fontSize: 12, 
-                        fontWeight: isNewMessage ? FontWeight.bold : FontWeight.normal
+                        color: isNewMessage ? Colors.deepPurple : Colors.grey,
+                        fontSize: 12,
+                        fontWeight: isNewMessage
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                 ],
@@ -172,8 +179,11 @@ class _DmPageState extends State<DmPage> {
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
                   dm["last_message"]!,
-                  style: isNewMessage 
-                      ? const TextStyle(color: Colors.black, fontWeight: FontWeight.bold) 
+                  style: isNewMessage
+                      ? const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        )
                       : const TextStyle(color: Colors.grey),
                   overflow: TextOverflow.ellipsis,
                 ),

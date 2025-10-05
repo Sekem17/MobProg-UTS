@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medsos/storage/notif_storage.dart';
 import 'package:medsos/fitur/fitur_chat.dart';
+import 'package:medsos/widget/avatar_widget.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -16,7 +17,7 @@ class _SearchPageState extends State<SearchPage> {
   String query = "";
 
   Map<String, bool> _followingStatus = {};
-  String _currentUsername = ""; // Username tanpa '@'
+  String _currentUsername = ""; 
 
   static const String _followingKey = 'user_following_list';
 
@@ -26,25 +27,25 @@ class _SearchPageState extends State<SearchPage> {
     _loadCurrentUser();
   }
 
-  // --- Persistensi Follow ---
-
   Future<void> _loadFollowingStatus() async {
-    if (_currentUsername == 'guest') return;
+    if (_currentUsername == 'guest' || _currentUsername.isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
+    
     final List<String> followingList =
         prefs.getStringList('${_followingKey}_$_currentUsername') ?? [];
 
     setState(() {
-      _followingStatus = {for (var username in followingList) username: true};
+      _followingStatus = {for (var username in followingList) "@$username": true};
     });
   }
 
   Future<void> _saveFollowingStatus() async {
-    if (_currentUsername == 'guest') return;
+    if (_currentUsername == 'guest' || _currentUsername.isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
 
     final List<String> followingList = _followingStatus.keys
         .where((username) => _followingStatus[username] == true)
+        .map((usernameWithAt) => usernameWithAt.substring(1)) 
         .toList();
 
     await prefs.setStringList(
@@ -53,55 +54,78 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  // --- Data Loading ---
-
   Future<void> _loadCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
-    final currentUsername = prefs.getString('current_user');
+    final currentUsername = prefs.getString('current_user'); 
+    
     setState(() {
-      _currentUsername = currentUsername ?? 'guest';
+      _currentUsername = currentUsername ?? 'guest'; 
     });
-    await _loadRegisteredAccounts(currentUsername);
-    await _loadFollowingStatus();
+    
+    await _loadFollowingStatus(); 
+    await _loadAllAccounts();
+  }
+  Future<void> _cleanupFollowingList(
+      Set<String> existingUsernamesWithoutAt) async {
+    if (_currentUsername == 'guest' || _currentUsername.isEmpty) return;
+    final prefs = await SharedPreferences.getInstance();
+    final String followingKey = '${_followingKey}_$_currentUsername';
+
+    final List<String> currentFollowingList =
+        prefs.getStringList(followingKey) ?? [];
+
+    final List<String> cleanedFollowingList = currentFollowingList
+        .where((username) => existingUsernamesWithoutAt.contains(username))
+        .toList();
+
+    if (cleanedFollowingList.length < currentFollowingList.length) {
+      await prefs.setStringList(followingKey, cleanedFollowingList);
+
+      setState(() {
+        _followingStatus = {
+          for (var username in cleanedFollowingList) '@$username': true
+        };
+      });
+    }
   }
 
-  Future<void> _loadRegisteredAccounts(String? currentUsername) async {
+  Future<void> _loadAllAccounts() async {
     final prefs = await SharedPreferences.getInstance();
     final allKeys = prefs.getKeys();
-
-    List<Map<String, String>> loadedAccounts = [];
+    List<Map<String, String>> accounts = [];
+    Set<String> existingUsernamesWithoutAt =
+        {}; 
 
     final userKeys = allKeys
         .where((key) => key.startsWith('user_') && key != 'current_user')
         .toList();
 
     for (var key in userKeys) {
-      final username = key.substring(5);
-      final name = prefs.getString('name_$username');
+      final usernameWithoutAt = key.substring(5); 
+      if (usernameWithoutAt == _currentUsername) continue;
 
-      if (name != null && username.isNotEmpty) {
-        if (username != currentUsername) {
-          loadedAccounts.add({
-            "name": name,
-            "username": "@$username",
-            "avatar": name.substring(0, 1).toUpperCase(),
-          });
-        }
+      final name = prefs.getString('name_$usernameWithoutAt');
+      
+      if (name != null && usernameWithoutAt.isNotEmpty) {
+        final usernameWithAt = '@$usernameWithoutAt';
+        accounts.add({
+          "name": name,
+          "username": usernameWithAt,
+        });
+        existingUsernamesWithoutAt.add(usernameWithoutAt); 
       }
     }
 
-    loadedAccounts.sort((a, b) => a["name"]!.compareTo(b["name"]!));
+    await _cleanupFollowingList(existingUsernamesWithoutAt);
 
     setState(() {
-      _allAccounts = loadedAccounts;
+      _allAccounts = accounts;
       _isLoading = false;
     });
   }
 
-  // --- Actions ---
-
   void _toggleFollow(String username, String name) async {
-    if (_currentUsername == 'guest') {
+    if (_currentUsername == 'guest' || _currentUsername.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Anda harus login untuk mengikuti akun.")),
       );
@@ -118,15 +142,14 @@ class _SearchPageState extends State<SearchPage> {
 
     await _saveFollowingStatus();
 
-    await NotificationStorage.addNotification(
-      {
+    if (isNowFollowing) {
+      await NotificationStorage.addNotification({
         "type": "follow",
-        "sender": "@$_currentUsername",
+        "sender": "@$_currentUsername", 
         "message": "Mulai mengikuti Anda.",
-        // Hapus "recipient" dari sini
-      },
-      username.substring(1), // <<< ARGUMEN KEDUA: Penerima (Recipient)
-    );
+      }, username.substring(1)); 
+    }
+
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -138,10 +161,14 @@ class _SearchPageState extends State<SearchPage> {
         duration: const Duration(seconds: 1),
       ),
     );
+    
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _openDM(String otherUsername, String otherName) {
-    if (_currentUsername == 'guest') {
+    if (_currentUsername == 'guest' || _currentUsername.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Anda harus login untuk mengirim pesan.")),
       );
@@ -151,8 +178,8 @@ class _SearchPageState extends State<SearchPage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => ChatRoomPage(
-          currentUser: _currentUsername,
-          otherUser: otherUsername.substring(1),
+          currentUser: _currentUsername, 
+          otherUser: otherUsername.substring(1), 
           name: otherName,
           username: otherUsername,
         ),
@@ -211,29 +238,22 @@ class _SearchPageState extends State<SearchPage> {
                           itemCount: filteredAccounts.length,
                           itemBuilder: (context, index) {
                             final account = filteredAccounts[index];
-                            final username = account["username"]!;
+                            final username = account["username"]!; 
                             final name = account["name"]!;
 
                             final isFollowing =
                                 _followingStatus[username] ?? false;
 
                             return ListTile(
-                              leading: CircleAvatar(
+                              leading: UserAvatar(
+                                username: username.substring(1),
                                 radius: 24,
-                                backgroundColor: Colors.deepPurple.shade100,
-                                child: Text(
-                                  account["avatar"]!,
-                                  style: const TextStyle(
-                                    color: Colors.deepPurple,
-                                  ),
-                                ),
                               ),
                               title: Text(name),
                               subtitle: Text(username),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // TOMBOL MESSAGE
                                   IconButton(
                                     icon: const Icon(
                                       Icons.message_outlined,
@@ -243,7 +263,6 @@ class _SearchPageState extends State<SearchPage> {
                                   ),
                                   const SizedBox(width: 8),
 
-                                  // TOMBOL FOLLOW / FOLLOWING
                                   SizedBox(
                                     width: 100,
                                     child: ElevatedButton(
