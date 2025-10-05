@@ -21,8 +21,8 @@ class _HomePageState extends State<HomePage> {
 
   Map<String, String> _currentUser = {"name": "Pengguna", "username": "@guest"};
 
-  Set<int> _expandedCommentIndices = {};
-  Set<int> _fullCommentsIndices = {};
+  final Set<int> _expandedCommentIndices = {};
+  final Set<int> _fullCommentsIndices = {};
   final TextEditingController _commentController = TextEditingController();
 
   @override
